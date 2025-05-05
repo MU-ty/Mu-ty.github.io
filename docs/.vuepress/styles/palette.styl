@@ -1,0 +1,22 @@
+// 覆盖默认主题的高对比度样式
+@media (forced-colors: active) {
+  // 搜索框组件样式调整
+  .search-box input {
+    forced-color-adjust: none;
+    border-color: FieldText;
+    background-color: Field;
+  }
+
+  // 导航栏链接颜色修正
+  .nav-links a {
+    forced-color-adjust: preserve-parent;
+    color: LinkText !important;
+  }
+
+  // 全局文本颜色适配
+  body {
+    forced-color-adjust: auto;
+    color: CanvasText;
+    background-color: Canvas;
+  }
+}

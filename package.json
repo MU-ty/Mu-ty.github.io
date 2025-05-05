@@ -1,0 +1,12 @@
+{
+  "name": "gh-pages-blog",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs"
+  },
+  "dependencies": {
+    "vuepress": "^1.9.10",
+    "vuepress-plugin-rss": "^2.0.0"
+  }
+}
