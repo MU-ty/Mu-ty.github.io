@@ -72,7 +72,7 @@ git push
 如果部署后出现资源文件404错误（如JS文件无法加载），请检查：
 
 1. **确认base路径设置**：在`docs/.vuepress/config.js`中，确保`base`设置与仓库名称匹配（例如：`/Binbim-Blog/`）
-2. **检查内部链接**：所有内部链接都应包含正确的base前缀（例如：`/Binbim-Blog/posts/article.html`）
+2. **检查内部链接**：内部链接应使用相对路径（例如：`/posts/article.html`），不要手动添加base前缀，VuePress会自动处理
 3. **清除缓存**：尝试清除浏览器缓存或使用隐私模式访问
 
 更多详细的故障排除步骤，请参考项目根目录下的`GITHUB_PAGES_TROUBLESHOOTING.md`文件。

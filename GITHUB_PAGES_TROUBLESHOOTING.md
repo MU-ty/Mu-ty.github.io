@@ -23,22 +23,16 @@ module.exports = {
 }
 ```
 
-### 2. 确保所有内部链接都使用正确的base路径
+### 2. 检查内部链接
 
-在Markdown文件中的所有内部链接都应该包含base路径前缀：
+确保所有内部链接使用正确的相对路径，不要手动添加base前缀：
 
 ```markdown
-<!-- 错误 -->
+<!-- 正确 -->
 [链接](/posts/article.html)
 
-<!-- 正确 -->
+<!-- 错误 -->
 [链接](/Binbim-Blog/posts/article.html)
-```
-
-或者使用VuePress提供的相对路径语法：
-
-```markdown
-[链接](../posts/article.md)
 ```
 
 ### 3. 检查GitHub Pages设置
