@@ -46,7 +46,7 @@ git push -u origin main
 部署完成后，你可以通过以下 URL 访问你的博客：
 
 ```
-https://你的用户名.github.io/blog/
+https://你的用户名.github.io/Binbim-Blog/
 ```
 
 ## 更新博客
@@ -64,8 +64,18 @@ git push
 如果部署失败，请检查：
 
 1. GitHub Actions 日志中的错误信息
-2. 确保 VuePress 配置文件中的 `base` 设置正确（当前设置为 `/blog/`）
+2. 确保 VuePress 配置文件中的 `base` 设置正确（当前设置为 `/Binbim-Blog/`）
 3. 确保仓库设置中的 GitHub Pages 源设置为 `gh-pages` 分支
+
+### 常见问题：404错误
+
+如果部署后出现资源文件404错误（如JS文件无法加载），请检查：
+
+1. **确认base路径设置**：在`docs/.vuepress/config.js`中，确保`base`设置与仓库名称匹配（例如：`/Binbim-Blog/`）
+2. **检查内部链接**：所有内部链接都应包含正确的base前缀（例如：`/Binbim-Blog/posts/article.html`）
+3. **清除缓存**：尝试清除浏览器缓存或使用隐私模式访问
+
+更多详细的故障排除步骤，请参考项目根目录下的`GITHUB_PAGES_TROUBLESHOOTING.md`文件。
 
 ## 自定义域名（可选）
 

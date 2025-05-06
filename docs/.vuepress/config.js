@@ -1,7 +1,7 @@
 module.exports = {
   title: 'My Blog',
   description: 'A lightweight blog system',
-  base: '/blog/',
+  base: '/Binbim-Blog/',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
@@ -16,7 +16,7 @@ module.exports = {
   plugins: [
     ['@vuepress/rss', {
       base_url: '/',
-      site_url: 'https://yourusername.github.io',
+      site_url: 'https://yourusername.github.io/Binbim-Blog',
       filter: frontmatter => frontmatter.date,
       count: 20
     }]
