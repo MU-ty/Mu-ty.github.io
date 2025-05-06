@@ -1,3 +1,5 @@
+[![Release](https://img.shields.io/github/v/release/yunduan-CloudForge/cloudforge-home)](https://github.com/yunduan-CloudForge/cloudforge-home/releases)  
+[![GitHub Stars](https://img.shields.io/github/stars/yunduan-CloudForge/cloudforge-home)](https://github.com/yunduan-CloudForge/cloudforge-home/stargazers)  
 # VuePress 博客项目
 
 这是一个使用 VuePress 构建的轻量级博客系统，已配置好 GitHub Pages 自动部署流程。
