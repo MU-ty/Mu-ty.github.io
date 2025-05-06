@@ -40,26 +40,30 @@ export default {
     return {
       articles: [],
       generatedMarkdown: '',
-      currentFilename: ''
+      currentFilename: '',
+      apiBaseUrl: 'http://localhost:3000/api'
     }
   },
   mounted() {
-    // 从localStorage加载文章数据
+    // 从API加载文章数据
     this.loadArticles()
   },
   methods: {
     /**
-     * 从localStorage加载文章数据
+     * 从API加载文章数据
      */
-    loadArticles() {
-      const savedArticles = localStorage.getItem('blog-articles')
-      if (savedArticles) {
-        try {
-          this.articles = JSON.parse(savedArticles)
-        } catch (e) {
-          console.error('加载文章失败:', e)
+    async loadArticles() {
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/articles`)
+        if (response.ok) {
+          this.articles = await response.json()
+        } else {
+          console.error('加载文章失败:', response.statusText)
           this.articles = []
         }
+      } catch (e) {
+        console.error('加载文章失败:', e)
+        this.articles = []
       }
     },
     

@@ -126,31 +126,64 @@ export default {
       editIndex: -1
     }
   },
+  data() {
+    return {
+      activeTab: 'list',
+      articles: [],
+      currentArticle: {
+        title: '',
+        filename: '',
+        description: '',
+        content: ''
+      },
+      isEditing: false,
+      editIndex: -1,
+      apiBaseUrl: 'http://localhost:3000/api'
+    }
+  },
   mounted() {
-    // 从localStorage加载文章数据
+    // 从API加载文章数据
     this.loadArticles()
   },
   methods: {
     /**
-     * 从localStorage加载文章数据
+     * 从API加载文章数据
      */
-    loadArticles() {
-      const savedArticles = localStorage.getItem('blog-articles')
-      if (savedArticles) {
-        try {
-          this.articles = JSON.parse(savedArticles)
-        } catch (e) {
-          console.error('加载文章失败:', e)
+    async loadArticles() {
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/articles`)
+        if (response.ok) {
+          this.articles = await response.json()
+        } else {
+          console.error('加载文章失败:', response.statusText)
           this.articles = []
         }
+      } catch (e) {
+        console.error('加载文章失败:', e)
+        this.articles = []
       }
     },
     
     /**
-     * 保存文章数据到localStorage
+     * 保存文章数据到API
      */
-    saveArticlesToStorage() {
-      localStorage.setItem('blog-articles', JSON.stringify(this.articles))
+    async saveArticlesToStorage() {
+      try {
+        const response = await fetch(`${this.apiBaseUrl}/articles`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.articles)
+        })
+        
+        if (!response.ok) {
+          throw new Error(`保存失败: ${response.statusText}`)
+        }
+      } catch (e) {
+        console.error('保存文章失败:', e)
+        alert('保存文章失败，请稍后重试')
+      }
     },
     
     /**
@@ -183,7 +216,7 @@ export default {
     /**
      * 保存文章
      */
-    saveArticle() {
+    async saveArticle() {
       // 表单验证
       if (!this.currentArticle.title || !this.currentArticle.filename) {
         alert('标题和文件名不能为空')
@@ -199,22 +232,50 @@ export default {
         date: new Date().toISOString()
       }
       
-      if (this.isEditing) {
-        // 更新现有文章
-        this.articles[this.editIndex] = articleData
-      } else {
-        // 添加新文章
-        this.articles.push(articleData)
+      try {
+        if (this.isEditing) {
+          // 更新现有文章
+          const response = await fetch(`${this.apiBaseUrl}/article/${articleData.filename}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(articleData)
+          })
+          
+          if (!response.ok) {
+            throw new Error(`更新失败: ${response.statusText}`)
+          }
+          
+          // 更新本地数据
+          this.articles[this.editIndex] = articleData
+        } else {
+          // 添加新文章
+          const response = await fetch(`${this.apiBaseUrl}/article`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(articleData)
+          })
+          
+          if (!response.ok) {
+            throw new Error(`添加失败: ${response.statusText}`)
+          }
+          
+          // 更新本地数据
+          this.articles.push(articleData)
+        }
+        
+        // 重置表单
+        this.resetForm()
+        
+        // 显示成功消息
+        alert(this.isEditing ? '文章已更新' : '文章已添加')
+      } catch (error) {
+        console.error('保存文章失败:', error)
+        alert('保存文章失败，请稍后重试')
       }
-      
-      // 保存到localStorage
-      this.saveArticlesToStorage()
-      
-      // 重置表单
-      this.resetForm()
-      
-      // 显示成功消息
-      alert(this.isEditing ? '文章已更新' : '文章已添加')
     }
   }
 }
