@@ -1,4 +1,4 @@
-[![Release](https://img.shields.io/github/v/release/yunduan-CloudForge/cloudforge-home)](https://github.com/yunduan-CloudForge/cloudforge-home/releases)  
+[![Release](https://img.shields.io/github/v/release/yunduan-CloudForge/cloudforge-home)](https://github.com/yunduan-CloudForge/cloudforge-home/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/yunduan-CloudForge/cloudforge-home)](https://github.com/yunduan-CloudForge/cloudforge-home/stargazers)  
 # VuePress 博客项目
 
