@@ -1,0 +1,33 @@
+// 覆盖VuePress插件中的-ms-high-contrast媒体查询
+
+// 覆盖SearchBox组件中的IE11特定样式
+@media (forced-colors: active) {
+  .search-box input {
+    height: 2rem;
+  }
+}
+
+// 确保高对比度模式下的可访问性
+@media (forced-colors: active) {
+  // 确保链接在高对比度模式下可见
+  a {
+    forced-color-adjust: none;
+    color: LinkText !important;
+  }
+  
+  // 确保按钮在高对比度模式下可见
+  button {
+    forced-color-adjust: none;
+    border: 1px solid ButtonText;
+    background-color: ButtonFace;
+    color: ButtonText;
+  }
+  
+  // 确保输入框在高对比度模式下可见
+  input, textarea {
+    forced-color-adjust: none;
+    border-color: FieldText;
+    background-color: Field;
+    color: FieldText;
+  }
+}

@@ -19,6 +19,12 @@
       >
         导出文章
       </button>
+      <button 
+        :class="['tab-button', { active: activeTab === 'settings' }]" 
+        @click="activeTab = 'settings'"
+      >
+        设置
+      </button>
     </div>
 
     <!-- 文章列表 -->
@@ -96,6 +102,40 @@
     <div v-if="activeTab === 'export'" class="tab-content">
       <ArticleExporter />
     </div>
+    
+    <!-- 设置 -->
+    <div v-if="activeTab === 'settings'" class="tab-content">
+      <h3>数据管理</h3>
+      <div class="settings-section">
+        <h4>数据备份</h4>
+        <p>将所有文章数据导出为JSON文件，便于备份和迁移。</p>
+        <div class="settings-actions">
+          <button @click="exportData" class="primary-btn">导出数据</button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h4>数据恢复</h4>
+        <p>从JSON文件恢复文章数据。</p>
+        <div class="file-upload">
+          <input type="file" id="data-file" @change="handleFileUpload" accept=".json">
+          <label for="data-file" class="file-label">选择JSON文件</label>
+        </div>
+        <div class="settings-actions" v-if="selectedFile">
+          <span class="file-name">已选择: {{ selectedFile.name }}</span>
+          <button @click="importData" class="primary-btn">导入数据</button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h4>自动保存设置</h4>
+        <div class="checkbox-group">
+          <input type="checkbox" id="auto-save" v-model="autoSave">
+          <label for="auto-save">启用自动保存</label>
+        </div>
+        <p class="setting-description">启用后，编辑文章时会自动保存草稿</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -123,67 +163,116 @@ export default {
         content: ''
       },
       isEditing: false,
-      editIndex: -1
-    }
-  },
-  data() {
-    return {
-      activeTab: 'list',
-      articles: [],
-      currentArticle: {
-        title: '',
-        filename: '',
-        description: '',
-        content: ''
-      },
-      isEditing: false,
       editIndex: -1,
-      apiBaseUrl: 'http://localhost:3000/api'
+      autoSave: true,
+      autoSaveInterval: null,
+      lastSavedDraft: null,
+      selectedFile: null
     }
   },
   mounted() {
-    // 从API加载文章数据
+    // 从localStorage加载文章数据
     this.loadArticles()
+    
+    // 加载自动保存设置
+    this.loadAutoSaveSettings()
+    
+    // 恢复草稿（如果有）
+    this.restoreDraft()
+    
+    // 设置自动保存
+    this.setupAutoSave()
+  },
+  
+  beforeDestroy() {
+    // 清除自动保存定时器
+    if (this.autoSaveInterval) {
+      clearInterval(this.autoSaveInterval)
+    }
   },
   methods: {
     /**
-     * 从API加载文章数据
+     * 从localStorage加载文章数据
      */
-    async loadArticles() {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/articles`)
-        if (response.ok) {
-          this.articles = await response.json()
-        } else {
-          console.error('加载文章失败:', response.statusText)
+    loadArticles() {
+      const savedArticles = localStorage.getItem('blog-articles')
+      if (savedArticles) {
+        try {
+          this.articles = JSON.parse(savedArticles)
+        } catch (e) {
+          console.error('加载文章失败:', e)
           this.articles = []
         }
-      } catch (e) {
-        console.error('加载文章失败:', e)
-        this.articles = []
       }
     },
     
     /**
-     * 保存文章数据到API
+     * 加载自动保存设置
      */
-    async saveArticlesToStorage() {
-      try {
-        const response = await fetch(`${this.apiBaseUrl}/articles`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.articles)
-        })
-        
-        if (!response.ok) {
-          throw new Error(`保存失败: ${response.statusText}`)
-        }
-      } catch (e) {
-        console.error('保存文章失败:', e)
-        alert('保存文章失败，请稍后重试')
+    loadAutoSaveSettings() {
+      const savedSetting = localStorage.getItem('blog-auto-save')
+      if (savedSetting !== null) {
+        this.autoSave = JSON.parse(savedSetting)
       }
+    },
+    
+    /**
+     * 设置自动保存
+     */
+    setupAutoSave() {
+      // 清除现有定时器
+      if (this.autoSaveInterval) {
+        clearInterval(this.autoSaveInterval)
+      }
+      
+      // 如果启用了自动保存，设置定时器
+      if (this.autoSave) {
+        this.autoSaveInterval = setInterval(() => {
+          if (this.activeTab === 'add' && 
+              (this.currentArticle.title || this.currentArticle.content)) {
+            this.saveDraft()
+          }
+        }, 30000) // 每30秒自动保存一次
+      }
+    },
+    
+    /**
+     * 保存草稿
+     */
+    saveDraft() {
+      const draft = JSON.stringify(this.currentArticle)
+      localStorage.setItem('blog-article-draft', draft)
+      this.lastSavedDraft = new Date().toLocaleTimeString()
+    },
+    
+    /**
+     * 恢复草稿
+     */
+    restoreDraft() {
+      const savedDraft = localStorage.getItem('blog-article-draft')
+      if (savedDraft && !this.isEditing) {
+        try {
+          const draft = JSON.parse(savedDraft)
+          if (draft.title || draft.content) {
+            if (confirm('发现未保存的草稿，是否恢复？')) {
+              this.currentArticle = draft
+              this.activeTab = 'add'
+            } else {
+              localStorage.removeItem('blog-article-draft')
+            }
+          }
+        } catch (e) {
+          console.error('恢复草稿失败:', e)
+          localStorage.removeItem('blog-article-draft')
+        }
+      }
+    },
+    
+    /**
+     * 保存文章数据到localStorage
+     */
+    saveArticlesToStorage() {
+      localStorage.setItem('blog-articles', JSON.stringify(this.articles))
     },
     
     /**
@@ -216,10 +305,17 @@ export default {
     /**
      * 保存文章
      */
-    async saveArticle() {
+    saveArticle() {
       // 表单验证
       if (!this.currentArticle.title || !this.currentArticle.filename) {
         alert('标题和文件名不能为空')
+        return
+      }
+      
+      // 文件名验证
+      const filenameRegex = /^[a-zA-Z0-9_-]+$/
+      if (!filenameRegex.test(this.currentArticle.filename)) {
+        alert('文件名只能包含字母、数字、连字符和下划线')
         return
       }
       
@@ -229,53 +325,116 @@ export default {
         filename: this.currentArticle.filename,
         description: this.currentArticle.description,
         content: this.currentArticle.content,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        lastModified: new Date().toISOString()
       }
       
-      try {
-        if (this.isEditing) {
-          // 更新现有文章
-          const response = await fetch(`${this.apiBaseUrl}/article/${articleData.filename}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(articleData)
-          })
-          
-          if (!response.ok) {
-            throw new Error(`更新失败: ${response.statusText}`)
-          }
-          
-          // 更新本地数据
-          this.articles[this.editIndex] = articleData
-        } else {
-          // 添加新文章
-          const response = await fetch(`${this.apiBaseUrl}/article`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(articleData)
-          })
-          
-          if (!response.ok) {
-            throw new Error(`添加失败: ${response.statusText}`)
-          }
-          
-          // 更新本地数据
-          this.articles.push(articleData)
-        }
-        
-        // 重置表单
-        this.resetForm()
-        
-        // 显示成功消息
-        alert(this.isEditing ? '文章已更新' : '文章已添加')
-      } catch (error) {
-        console.error('保存文章失败:', error)
-        alert('保存文章失败，请稍后重试')
+      if (this.isEditing) {
+        // 更新现有文章
+        this.articles[this.editIndex] = articleData
+      } else {
+        // 添加新文章
+        this.articles.push(articleData)
       }
+      
+      // 保存到localStorage
+      this.saveArticlesToStorage()
+      
+      // 重置表单
+      this.resetForm()
+      
+      // 清除草稿
+      localStorage.removeItem('blog-article-draft')
+      
+      // 显示成功消息
+      alert(this.isEditing ? '文章已更新' : '文章已添加')
+    },
+    
+    /**
+     * 导出数据为JSON文件
+     */
+    exportData() {
+      if (this.articles.length === 0) {
+        alert('没有可导出的文章数据')
+        return
+      }
+      
+      // 准备导出数据
+      const exportData = {
+        articles: this.articles,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      }
+      
+      // 创建下载链接
+      const dataStr = JSON.stringify(exportData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      // 创建下载链接并触发下载
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `blog-articles-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      // 释放URL对象
+      setTimeout(() => URL.revokeObjectURL(url), 100)
+    },
+    
+    /**
+     * 处理文件上传
+     */
+    handleFileUpload(event) {
+      this.selectedFile = event.target.files[0]
+    },
+    
+    /**
+     * 从JSON文件导入数据
+     */
+    importData() {
+      if (!this.selectedFile) {
+        alert('请选择要导入的JSON文件')
+        return
+      }
+      
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result)
+          
+          // 验证导入的数据格式
+          if (!importedData.articles || !Array.isArray(importedData.articles)) {
+            throw new Error('无效的数据格式')
+          }
+          
+          // 确认导入
+          if (confirm(`确定要导入${importedData.articles.length}篇文章吗？这将覆盖现有数据。`)) {
+            this.articles = importedData.articles
+            this.saveArticlesToStorage()
+            alert('数据导入成功')
+            this.selectedFile = null
+            document.getElementById('data-file').value = ''
+          }
+        } catch (error) {
+          alert(`导入失败: ${error.message}`)
+        }
+      }
+      
+      reader.readAsText(this.selectedFile)
+    }
+  },
+  
+  /**
+   * 监听自动保存设置变化
+   */
+  watch: {
+    autoSave(newValue) {
+      // 保存设置到localStorage
+      localStorage.setItem('blog-auto-save', JSON.stringify(newValue))
+      // 更新自动保存设置
+      this.setupAutoSave()
     }
   }
 }
@@ -406,5 +565,71 @@ button {
   text-align: center;
   padding: 30px;
   color: #999;
+}
+
+/* 设置页面样式 */
+.settings-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eaecef;
+}
+
+.settings-section h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.settings-actions {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.primary-btn {
+  background-color: #3eaf7c;
+  color: white;
+}
+
+.file-upload {
+  margin-top: 15px;
+}
+
+.file-upload input[type="file"] {
+  display: none;
+}
+
+.file-label {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f3f3f3;
+  color: #2c3e50;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.file-label:hover {
+  background-color: #e6e6e6;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #666;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.setting-description {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
 }
 </style>
