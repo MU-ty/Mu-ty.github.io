@@ -2,3 +2,4 @@
 
 最新文章：
 - [第一篇文章](/posts/first-post.html)
+- [test](/posts/first-postcopy.html)
