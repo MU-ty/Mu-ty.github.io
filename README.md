@@ -2,6 +2,12 @@
 
 这是一个使用 VuePress 构建的轻量级博客系统，已配置好 GitHub Pages 自动部署流程。
 
+## 联系方式
+
+- 邮箱：binbim_promax@163.com
+- QQ：1721822150
+- 交流群：1036011225 [跳转](https://qm.qq.com/q/x8P9eycxUI)
+
 ## 项目特点
 
 - 简洁的界面设计
