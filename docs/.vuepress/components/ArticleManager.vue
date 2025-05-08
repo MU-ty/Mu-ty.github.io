@@ -44,6 +44,7 @@
           </div>
           <div class="article-actions">
             <button @click="editArticle(index)" class="edit-btn">编辑</button>
+            <button @click="confirmDeleteArticle(index)" class="delete-btn">删除</button>
           </div>
         </div>
       </div>
@@ -129,11 +130,13 @@
       
       <div class="settings-section">
         <h4>自动保存设置</h4>
-        <div class="checkbox-group">
-          <input type="checkbox" id="auto-save" v-model="autoSave">
-          <label for="auto-save">启用自动保存</label>
+        <div class="settings-option">
+          <div class="checkbox-group">
+            <input type="checkbox" id="auto-save" v-model="autoSave">
+            <label for="auto-save">启用自动保存</label>
+          </div>
+          <p class="setting-description">启用后，编辑文章时会自动保存草稿</p>
         </div>
-        <p class="setting-description">启用后，编辑文章时会自动保存草稿</p>
       </div>
     </div>
   </div>
@@ -423,6 +426,26 @@ export default {
       }
       
       reader.readAsText(this.selectedFile)
+    },
+    
+    /**
+     * 确认删除文章
+     * @param {Number} index - 要删除的文章索引
+     */
+    confirmDeleteArticle(index) {
+      if (confirm('确定要删除这篇文章吗？此操作不可恢复。')) {
+        this.deleteArticle(index)
+      }
+    },
+    
+    /**
+     * 删除文章
+     * @param {Number} index - 要删除的文章索引
+     */
+    deleteArticle(index) {
+      this.articles.splice(index, 1)
+      this.saveArticlesToStorage()
+      alert('文章已删除')
     }
   },
   
@@ -526,6 +549,14 @@ button {
   color: white;
   padding: 5px 10px;
   font-size: 14px;
+  margin-right: 5px;
+}
+
+.delete-btn {
+  background-color: #f56c6c;
+  color: white;
+  padding: 5px 10px;
+  font-size: 14px;
 }
 
 .article-list {
@@ -617,10 +648,16 @@ button {
   color: #666;
 }
 
+.settings-option {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
 .checkbox-group {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -631,5 +668,6 @@ button {
   font-size: 14px;
   color: #666;
   margin-top: 5px;
+  margin-left: 24px;
 }
 </style>
