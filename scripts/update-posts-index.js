@@ -1,7 +1,7 @@
 /**
  * 自动更新博客文章索引脚本
  * 此脚本会扫描docs/posts目录下的所有Markdown文件（除README.md外）
- * 并提取文章标题，然后更新README.md文件中的文章列表
+ * 并提取文章标题，然后更新docs/posts/README.md和docs/README.md文件中的文章列表
  */
 
 const fs = require('fs');
@@ -9,8 +9,10 @@ const path = require('path');
 
 // 配置项
 const POSTS_DIR = path.join(__dirname, '..', 'docs', 'posts');
-const README_PATH = path.join(POSTS_DIR, 'README.md');
-const README_HEADER = '# 博客文章\n\n这里是所有博客文章的索引页面。\n\n## 文章列表';
+const POSTS_README_PATH = path.join(POSTS_DIR, 'README.md');
+const MAIN_README_PATH = path.join(__dirname, '..', 'docs', 'README.md');
+const POSTS_README_HEADER = '# 博客文章\n\n这里是所有博客文章的索引页面。\n\n## 文章列表';
+const MAIN_README_HEADER = '# 欢迎来到我的博客\n\n最新文章：';
 
 /**
  * 从Markdown文件中提取标题
@@ -34,7 +36,7 @@ function extractTitleFromMarkdown(filePath) {
 }
 
 /**
- * 更新README.md文件
+ * 更新文章索引文件
  */
 function updateReadme() {
   try {
@@ -43,22 +45,30 @@ function updateReadme() {
       .filter(file => file.endsWith('.md') && file !== 'README.md')
       .sort(); // 按文件名排序
 
-    // 生成文章列表
-    let articleList = '';
+    // 生成文章列表（用于posts目录下的README.md）
+    let postsArticleList = '';
+    // 生成文章列表（用于主README.md）
+    let mainArticleList = '';
+    
     for (const file of files) {
       const filePath = path.join(POSTS_DIR, file);
       const title = extractTitleFromMarkdown(filePath);
-      articleList += `- [${title}](./${file})\n`;
+      postsArticleList += `- [${title}](./${file})\n`;
+      mainArticleList += `- [${title}](/posts/${file.replace('.md', '.html')})\n`;
     }
 
-    // 更新README.md
-    const readmeContent = `${README_HEADER}\n${articleList}`;
-    fs.writeFileSync(README_PATH, readmeContent);
+    // 更新posts目录下的README.md
+    const postsReadmeContent = `${POSTS_README_HEADER}\n${postsArticleList}`;
+    fs.writeFileSync(POSTS_README_PATH, postsReadmeContent);
+    
+    // 更新主目录下的README.md
+    const mainReadmeContent = `${MAIN_README_HEADER}\n${mainArticleList}`;
+    fs.writeFileSync(MAIN_README_PATH, mainReadmeContent);
 
     console.log('文章索引已更新！');
-    console.log(`共找到 ${files.length} 篇文章。`);
+    console.log(`共找到 ${files.length} 篇文章，已更新两个README.md文件。`);
   } catch (error) {
-    console.error('更新README.md时出错:', error);
+    console.error('更新README.md文件时出错:', error);
   }
 }
 

@@ -26,7 +26,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add docs/posts/README.md
+        git add docs/posts/README.md docs/README.md
         git diff --quiet && git diff --staged --quiet || git commit -m "自动更新文章索引 [skip ci]"
         git push
 
