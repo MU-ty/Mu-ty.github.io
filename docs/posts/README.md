@@ -3,5 +3,6 @@
 这里是所有博客文章的索引页面。
 
 ## 文章列表
+- [test](./diyipian.md)
 - [第一篇文章](./first-post.md)
 - [test](./first-postcopy.md)
