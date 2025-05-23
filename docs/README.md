@@ -1,5 +1,4 @@
 # 欢迎来到我的博客
 
 最新文章：
-- [第一篇文章](/posts/first-post.html)
-- [test](/posts/first-postcopy.html)
+- [自我介绍](/posts/01.html)
