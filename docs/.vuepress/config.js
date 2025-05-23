@@ -1,7 +1,10 @@
 module.exports = {
-  title: 'My Blog',
-  description: 'A lightweight blog system',
+  title: 'Binbim Blog',
+  description: '一个简洁优雅的个人博客系统',
   base: '/Binbim-Blog/',
+  head: [
+    ['link', { rel: 'icon', href: '/logo.svg' }]
+  ],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },

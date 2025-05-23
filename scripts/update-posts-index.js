@@ -62,7 +62,24 @@ function updateReadme() {
     fs.writeFileSync(POSTS_README_PATH, postsReadmeContent);
     
     // 更新主目录下的README.md
-    const mainReadmeContent = `${MAIN_README_HEADER}\n${mainArticleList}`;
+    // 先读取现有的README.md文件，保留front matter
+    let mainReadmeContent = '';
+    try {
+      const existingContent = fs.readFileSync(MAIN_README_PATH, 'utf8');
+      // 检查是否有front matter
+      const frontMatterMatch = existingContent.match(/^---\n([\s\S]*?)\n---\n/);
+      if (frontMatterMatch) {
+        // 保留front matter，并在slot posts中更新文章列表
+        const frontMatter = frontMatterMatch[0];
+        mainReadmeContent = `${frontMatter}\n::: slot posts\n${mainArticleList}:::\n`;
+      } else {
+        // 如果没有front matter，使用默认格式
+        mainReadmeContent = `${MAIN_README_HEADER}\n${mainArticleList}`;
+      }
+    } catch (error) {
+      // 如果文件不存在或读取失败，使用默认格式
+      mainReadmeContent = `${MAIN_README_HEADER}\n${mainArticleList}`;
+    }
     fs.writeFileSync(MAIN_README_PATH, mainReadmeContent);
 
     console.log('文章索引已更新！');
