@@ -1,9 +1,6 @@
 <template>
   <div class="posts-container">
-    <div class="posts-header">
-      <h1>博客文章</h1>
-      <p>这里是所有博客文章的索引页面</p>
-    </div>
+    <!-- 删除了重复的标题部分 -->
     
     <ul class="posts-list">
       <li v-for="(post, index) in posts" :key="index" class="post-item">
