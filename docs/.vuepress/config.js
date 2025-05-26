@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Binbim Blog',
   description: '一个简洁优雅的个人博客系统',
-  base: '/Binbim-Blog/',
+  base: '/Mu-ty.github.io/',
   head: [
     ['link', { rel: 'icon', href: '/logo.svg' }]
   ],
@@ -19,7 +19,7 @@ module.exports = {
   plugins: [
     ['@vuepress/rss', {
       base_url: '/',
-      site_url: 'https://yourusername.github.io/Binbim-Blog',
+      site_url: 'https://Mu-ty.github.io/Binbim-Blog',
       filter: frontmatter => frontmatter.date,
       count: 20
     }]
