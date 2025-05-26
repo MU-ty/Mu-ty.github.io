@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Binbim Blog',
   description: '一个简洁优雅的个人博客系统',
-  base: '/Mu-ty.github.io/',
+  base: '/Binbim-Blog/',
   head: [
     ['link', { rel: 'icon', href: '/logo.svg' }]
   ],
